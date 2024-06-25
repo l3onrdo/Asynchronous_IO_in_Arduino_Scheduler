@@ -1,0 +1,5 @@
+
+*.o
+*.hex
+*.elf
+serial/serial linux/serial_linux
