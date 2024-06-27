@@ -3,3 +3,4 @@
 *.hex
 *.elf
 serial/serial linux/serial_linux
+/serial/file_di_test
