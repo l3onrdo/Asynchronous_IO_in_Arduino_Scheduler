@@ -9,19 +9,19 @@
 #include "uart.h"
 #include "atomport_asm.h"
 #include "scheduler.h"
+#include "buffer.h"
+#include "IO.h"
 #define THREAD_STACK_SIZE 256
 #define IDLE_STACK_SIZE 128
 
 
-
-// variabili allocate staticamente dove mettiamo i processi
 
 TCB idle_tcb;
 uint8_t idle_stack[IDLE_STACK_SIZE];
 void idle_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
-    printf("i\n");
+    printf("idle\n");
     sei();
     _delay_ms(10);
   }
