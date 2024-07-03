@@ -54,7 +54,7 @@ void p2_fn(uint32_t arg __attribute__((unused))){
 int main(void){
   // we need printf for debugging
   printf_init();
-
+  //creo i processi
   TCB_create(&idle_tcb,
              idle_stack+IDLE_STACK_SIZE-1,
              idle_fn,
@@ -70,11 +70,11 @@ int main(void){
              p2_fn,
              0);
 
-  
+  // metto i processi nella coda dei processi pronti
   TCBList_enqueue(&running_queue, &p1_tcb);
   TCBList_enqueue(&running_queue, &p2_tcb);
   TCBList_enqueue(&running_queue, &idle_tcb);
-
+  
   printf("starting\n");
   startSchedule();
 }

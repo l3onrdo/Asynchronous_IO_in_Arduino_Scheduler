@@ -54,6 +54,11 @@ int serial_set_interface_attribs(int fd, int speed, int parity) {
     printf ("error %d from tcsetattr", errno);
     return -1;
   }
+  // pulisce il buffer per evitare che si stampino artefarti strani
+  if(tcflush(fd, TCIOFLUSH) != 0) {
+    printf ("error %d from tcflush", errno);
+    return -1;
+  }
   return 0;
 }
 

@@ -1,7 +1,13 @@
+/**
+ * Implementazione delle funzioni per la gestione di una lista di TCB
+ */
+
 #include "tcb_list.h"
 #include <stdio.h>
 
-// pops the first thread from the queue, and detaches it
+/**
+ * Rimuove il primo processo dalla coda e lo disconnette.
+ */
 TCB* TCBList_dequeue(TCBList* list){
   TCB* tcb=list->first;
   if (tcb==NULL)
@@ -20,8 +26,9 @@ TCB* TCBList_dequeue(TCBList* list){
   return tcb;
 }
 
-// adds a thread to the end of the queue
-// thread must be detached
+/**
+ * Aggiunge un processo alla fine della coda.
+ */
 uint8_t TCBList_enqueue(TCBList* list, TCB* tcb){
   if(tcb->prev!=NULL || tcb->next!=NULL)
     return ERROR;
@@ -41,6 +48,9 @@ uint8_t TCBList_enqueue(TCBList* list, TCB* tcb){
   return OK;
 }
 
+/**
+ * Stampa la lista di TCB.
+ */
 void TCBList_print(TCBList* list){
   TCB* aux=list->first;
   printf("start-list\n");
