@@ -2,5 +2,5 @@
 *.o
 *.hex
 *.elf
-serial/serial linux/serial_linux
-/serial/file_di_test
+serial linux/serial_linux
+file_di_test

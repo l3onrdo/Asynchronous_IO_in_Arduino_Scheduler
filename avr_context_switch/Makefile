@@ -1,7 +1,7 @@
 # set this to false to disable sonars in firmware
 CC=avr-gcc
 AS=avr-gcc
-INCLUDE_DIRS=-I. -I../avr_common
+INCLUDE_DIRS=-I.
 CC_OPTS=-Wall --std=gnu99 -DF_CPU=16000000UL -O3 -funsigned-char -funsigned-bitfields  -fshort-enums -Wall -Wstrict-prototypes -mmcu=atmega2560 $(INCLUDE_DIRS)  -D__AVR_3_BYTE_PC__
 AS_OPTS=-x assembler-with-cpp $(CC_OPTS)
 
@@ -18,16 +18,33 @@ AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 AVRDUDE_FLAGS += -D -q -V -C /usr/share/arduino/hardware/tools/avr/../avrdude.conf
 AVRDUDE_FLAGS += -c wiring
 
+
+OBJS=uart.o\
+     tcb.o\
+     tcb_list.o\
+     atomport_asm.o\
+     timer.o\
+     scheduler.o\
+
+HEADERS=uart.h\
+        tcb.h.h\
+	tcb_list.h\
+	atomport_asm.h\
+	timer.h\
+        scheduler.h
+
+BINS= main.elf tcb_queue_test.elf
+
 .phony:	clean all
 
 all:	$(BINS) 
 
 #common objects
 %.o:	%.c 
-	$(CC) $(CC_OPTS) -c  -o $@ $<
+	$(CC) $(CC_OPTS) -c  $<
 
 %.o:	%.s 
-	$(AS) $(AS_OPTS) -c  -o $@ $<
+	$(AS) $(AS_OPTS) -c  $<
 
 %.elf:	%.o $(OBJS)
 	$(CC) $(CC_OPTS) -o $@ $< $(OBJS) $(LIBS)
@@ -39,5 +56,3 @@ all:	$(BINS)
 
 clean:	
 	rm -rf $(OBJS) $(BINS) *.hex *~ *.o
-
-.SECONDARY:	$(OBJS)
