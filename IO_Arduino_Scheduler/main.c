@@ -21,20 +21,21 @@ ISR(USART0_RX_vect){
     cli();
     char c = usart_getchar();
     //faccio in modo che il carattere di fine riga sia '\0' avvolte da problemi se è diverso
-    if(c == '\r' || c == '\n'){
-      c = '\0';
-    }
+    // if(c == '\r' || c == '\n'){
+    //   c = '\0';
+    // }
     put_data(&read_buffer, c);
     sei();
 }
 
-TCB idle_tcb;
-uint8_t idle_stack[IDLE_STACK_SIZE];
-void idle_fn(uint32_t thread_arg __attribute__((unused))){
+TCB write1_tcb;
+uint8_t write1_stack[IDLE_STACK_SIZE];
+void write1_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
-    if(read_buffer.size > 0){
-      usart_putchar(get_data(&read_buffer)); 
+    if(write_buffer.size > 0){
+      //usart_putchar(get_data(&read_buffer)); 
+      printf("so w1 e scrivo %c\n", get_data(&write_buffer));
     }
     
     sei();
@@ -42,28 +43,55 @@ void idle_fn(uint32_t thread_arg __attribute__((unused))){
   }
 }
 
-TCB p1_tcb;
-uint8_t p1_stack[THREAD_STACK_SIZE];
-void p1_fn(uint32_t arg __attribute__((unused))){
-  while(1){
+TCB write2_tcb;
+uint8_t write2_stack[IDLE_STACK_SIZE];
+void write2_fn(uint32_t thread_arg __attribute__((unused))){
+  while(1) {
     cli();
-    printf("p1\n");
+    if(write_buffer.size > 0){
+      //usart_putchar(get_data(&read_buffer));
+      printf("so w2 e scrivo %c\n", get_data(&write_buffer));
+    }
+    
     sei();
     _delay_ms(10);
   }
 }
 
-TCB p2_tcb;
-uint8_t p2_stack[THREAD_STACK_SIZE];
-void p2_fn(uint32_t arg __attribute__((unused))){
+TCB read1_tcp;
+uint8_t read1_stack[THREAD_STACK_SIZE];
+void read1_fn(uint32_t arg __attribute__((unused))){
   while(1){
     cli();
-    printf("p2\n");
+    //leggo dal buffer e scrivo sul buffer di scrittura
+    if(read_buffer.size > 0){
+      char read = get_data(&read_buffer);
+      put_data(&write_buffer, read);
+    
+      printf("so r1 e leggo %c\n", read);
+    }
     sei();
     _delay_ms(10);
   }
 }
 
+TCB read2_tcp;
+uint8_t read2_stack[THREAD_STACK_SIZE];
+void read2_fn(uint32_t arg __attribute__((unused))){
+  while(1){
+    cli();
+    //leggo dal buffer e scrivo sul buffer di scrittura
+    if(read_buffer.size > 0){
+      char read = get_data(&read_buffer);
+      put_data(&write_buffer, read);
+    
+      printf("so r2 e leggo %c\n", read);
+    }
+    
+    sei();
+    _delay_ms(10);
+  }
+}
 
 
 int main(void){
@@ -74,25 +102,30 @@ int main(void){
   buffer_init(&write_buffer);
   
   //creo i processi
-  TCB_create(&idle_tcb,
-             idle_stack+IDLE_STACK_SIZE-1,
-             idle_fn,
+  TCB_create(&write1_tcb,
+             write1_stack+IDLE_STACK_SIZE-1,
+             write1_fn,
              0);
 
-  TCB_create(&p1_tcb,
-             p1_stack+THREAD_STACK_SIZE-1,
-             p1_fn,
-             0);
+  TCB_create(&write2_tcb,
+              write2_stack+IDLE_STACK_SIZE-1,
+              write2_fn,
+              0);
 
-  TCB_create(&p2_tcb,
-             p2_stack+THREAD_STACK_SIZE-1,
-             p2_fn,
-             0);
+  TCB_create(&read1_tcp,
+              read1_stack+THREAD_STACK_SIZE-1,
+              read1_fn,
+              0);
 
+  TCB_create(&read2_tcp,
+              read2_stack+THREAD_STACK_SIZE-1,
+              read2_fn,
+              0);
   // metto i processi nella coda dei processi pronti
-  //TCBList_enqueue(&running_queue, &p1_tcb);
-  //TCBList_enqueue(&running_queue, &p2_tcb);
-  TCBList_enqueue(&running_queue, &idle_tcb);
+  TCBList_enqueue(&running_queue, &read1_tcp);
+  TCBList_enqueue(&running_queue, &read2_tcp);
+  TCBList_enqueue(&running_queue, &write2_tcb);
+  TCBList_enqueue(&running_queue, &write1_tcb);
   
   printf("starting\n");
   startSchedule();
