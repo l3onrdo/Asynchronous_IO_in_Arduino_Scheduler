@@ -15,23 +15,30 @@
 #define IDLE_STACK_SIZE 128
 
 
+
 // interrupt che gestisce la ricezione di un carattere
 ISR(USART0_RX_vect){
     cli();
     char c = usart_getchar();
-    printf("Carattere ricevuto: %c\n", c);
+    //faccio in modo che il carattere di fine riga sia '\0' avvolte da problemi se è diverso
+    if(c == '\r' || c == '\n'){
+      c = '\0';
+    }
+    put_data(&read_buffer, c);
     sei();
 }
-
 
 TCB idle_tcb;
 uint8_t idle_stack[IDLE_STACK_SIZE];
 void idle_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
-    printf("idle\n");
+    if(read_buffer.size > 0){
+      usart_putchar(get_data(&read_buffer)); 
+    }
+    
     sei();
-    _delay_ms(1000);
+    _delay_ms(10);
   }
 }
 
@@ -66,7 +73,6 @@ int main(void){
   buffer_init(&read_buffer);
   buffer_init(&write_buffer);
   
-  
   //creo i processi
   TCB_create(&idle_tcb,
              idle_stack+IDLE_STACK_SIZE-1,
@@ -84,8 +90,8 @@ int main(void){
              0);
 
   // metto i processi nella coda dei processi pronti
-  TCBList_enqueue(&running_queue, &p1_tcb);
-  TCBList_enqueue(&running_queue, &p2_tcb);
+  //TCBList_enqueue(&running_queue, &p1_tcb);
+  //TCBList_enqueue(&running_queue, &p2_tcb);
   TCBList_enqueue(&running_queue, &idle_tcb);
   
   printf("starting\n");

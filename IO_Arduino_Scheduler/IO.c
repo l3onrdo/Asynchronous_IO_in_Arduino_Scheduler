@@ -12,25 +12,23 @@
 
 
 //funzione per leggere dati dal buffer
-void get_data(buffer_t *buffer) {
-    if(buffer->head == buffer->tail) {
-        printf("Buffer vuoto\n");
+char get_data(buffer_t *buffer) {
+    if(buffer->size == 0) {
+        //deve mettere il processo in attesa
+        return '\0';
     }
     else {
-        uint8_t data = buffer_get(buffer);
-        printf("Dato letto: %d\n", data);
+        return buffer_get(buffer);
     }
-
 }
 
 //funzione per scrivere dati nel buffer
-void put_data(buffer_t *buffer, uint8_t data) {
-    if((buffer->head + 1) % BUFFER_SIZE == buffer->tail) {
-        printf("Buffer pieno\n");
+void put_data(buffer_t *buffer, char data) {
+    if(buffer->size == BUFFER_SIZE) {
+        //deve mettere il processo in attesa
     }
     else {
         buffer_put(buffer, data);
-        printf("Dato scritto: %d\n", data);
     }
 }
 
