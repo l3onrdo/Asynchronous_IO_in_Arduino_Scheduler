@@ -25,6 +25,7 @@ ISR(USART0_RX_vect){
     //   c = '\0';
     // }
     put_data(&read_buffer, c);
+    read_wakeup();
     sei();
 }
 
@@ -36,6 +37,7 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
     if(write_buffer.size > 0){
       //usart_putchar(get_data(&read_buffer)); 
       printf("so w1 e scrivo %c\n", get_data(&write_buffer));
+      read_wakeup();
     }
     
     sei();
@@ -51,6 +53,7 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
     if(write_buffer.size > 0){
       //usart_putchar(get_data(&read_buffer));
       printf("so w2 e scrivo %c\n", get_data(&write_buffer));
+      read_wakeup();
     }
     
     sei();
@@ -69,6 +72,7 @@ void read1_fn(uint32_t arg __attribute__((unused))){
       put_data(&write_buffer, read);
     
       printf("so r1 e leggo %c\n", read);
+      write_wakeup();
     }
     sei();
     _delay_ms(10);
@@ -86,6 +90,7 @@ void read2_fn(uint32_t arg __attribute__((unused))){
       put_data(&write_buffer, read);
     
       printf("so r2 e leggo %c\n", read);
+      write_wakeup();
     }
     
     sei();

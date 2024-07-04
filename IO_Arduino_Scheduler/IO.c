@@ -14,22 +14,19 @@
 //funzione per leggere dati dal buffer
 char get_data(buffer_t *buffer) {
     if(buffer->size == 0) {
-        //deve mettere il processo in attesa
-        return '\0';
+        //deve mettere il processo di lettura in attesa
+        read_wait();
     }
-    else {
-        return buffer_get(buffer);
-    }
+    return buffer_get(buffer);
 }
 
 //funzione per scrivere dati nel buffer
 void put_data(buffer_t *buffer, char data) {
-    if(buffer->size == BUFFER_SIZE) {
-        //deve mettere il processo in attesa
+    if(buffer->size >= BUFFER_SIZE) {
+        //deve mettere il processo di scrittura in attesa
+        write_wait();
     }
-    else {
-        buffer_put(buffer, data);
-    }
+    buffer_put(buffer, data);
 }
 
 

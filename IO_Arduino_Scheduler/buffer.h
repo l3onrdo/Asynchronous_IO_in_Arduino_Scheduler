@@ -1,5 +1,5 @@
 #include <stdint.h>
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 4
 
 typedef struct {
     char data[BUFFER_SIZE];
