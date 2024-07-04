@@ -15,6 +15,14 @@
 #define IDLE_STACK_SIZE 128
 
 
+// interrupt che gestisce la ricezione di un carattere
+ISR(USART0_RX_vect){
+    cli();
+    char c = usart_getchar();
+    printf("Carattere ricevuto: %c\n", c);
+    sei();
+}
+
 
 TCB idle_tcb;
 uint8_t idle_stack[IDLE_STACK_SIZE];
@@ -23,7 +31,7 @@ void idle_fn(uint32_t thread_arg __attribute__((unused))){
     cli();
     printf("idle\n");
     sei();
-    _delay_ms(10);
+    _delay_ms(1000);
   }
 }
 
@@ -54,6 +62,11 @@ void p2_fn(uint32_t arg __attribute__((unused))){
 int main(void){
   // we need printf for debugging
   printf_init();
+  // inizializzo i buffer
+  buffer_init(&read_buffer);
+  buffer_init(&write_buffer);
+  
+  
   //creo i processi
   TCB_create(&idle_tcb,
              idle_stack+IDLE_STACK_SIZE-1,

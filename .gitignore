@@ -4,3 +4,4 @@
 *.elf
 serial linux/serial_linux
 file_di_test
+*.json
