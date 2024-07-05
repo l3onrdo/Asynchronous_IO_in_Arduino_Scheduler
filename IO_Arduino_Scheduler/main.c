@@ -15,15 +15,22 @@
 #define THREAD_STACK_SIZE 256
 #define IDLE_STACK_SIZE 128
 
+char* print_w1="W1:\n";
+char* print_w2="W2:\n";
+
+uint8_t w1=1;
+uint8_t w2=1;
 
 
 // interrupt che gestisce la ricezione di un carattere
 ISR(USART0_RX_vect){
-    char c = usart_getchar();
+  w1=1;
+  w2=1;
+  char c = usart_getchar();
+
+  buffer_put(&read_buffer, c);
   
-    buffer_put(&read_buffer, c);
-    
-    read_wakeup();
+  read_wakeup();
 }
 
 TCB write1_tcb;
@@ -31,7 +38,20 @@ uint8_t write1_stack[IDLE_STACK_SIZE];
 void write1_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
-    
+    //stamapa print_w1 lo faccio atomico per evitare probleme di concorrenza
+    ATOMIC_BLOCK(ATOMIC_FORCEON){
+      if(w1 && write_buffer.size >0){
+        if(!w2){
+          usart_putchar('\n');
+        }        
+        //stampa la frase print_w1
+        for(int i=0; i<strlen(print_w1); i++){
+          usart_putchar(print_w1[i]);
+        }
+        w1=0;
+        w2=1;
+      }
+    }
     if(write_buffer.size > 0){
       usart_putchar(buffer_get(&write_buffer));
       //printf("%c", get_data(&write_buffer));
@@ -48,6 +68,21 @@ uint8_t write2_stack[IDLE_STACK_SIZE];
 void write2_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
+    //stamapa print_w2 lo faccio atomico per evitare probleme di concorrenza
+    ATOMIC_BLOCK(ATOMIC_FORCEON){
+      if(w2 && write_buffer.size >0){
+        if(!w1){
+          usart_putchar('\n');
+        }
+        //stampa la frase print_w2
+        for(int i=0; i<strlen(print_w2); i++){
+          usart_putchar(print_w2[i]);
+        }
+        w2=0;
+        w1=1;
+      }
+    }
+
     if(write_buffer.size > 0){
       //usart_putchar(buffer_get(&write_buffer));
       printf("%c", get_data(&write_buffer));
@@ -62,6 +97,7 @@ uint8_t read1_stack[THREAD_STACK_SIZE];
 void read1_fn(uint32_t arg __attribute__((unused))){
   while(1){
     cli();
+    
     //leggo dal buffer e scrivo sul buffer di scrittura
     if(read_buffer.size > 0){
       char read = buffer_get(&read_buffer);
