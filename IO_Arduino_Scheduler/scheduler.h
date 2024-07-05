@@ -6,6 +6,8 @@ extern TCB* current_tcb;
 
 // the running queue
 extern TCBList running_queue;
+extern TCBList wait_read_queue;
+extern TCBList wait_write_queue;
 
 void startSchedule(void);
 

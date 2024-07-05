@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <util/atomic.h>
 #include "tcb.h"
 #include "tcb_list.h"
