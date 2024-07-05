@@ -21,6 +21,8 @@ char* print_r1="R1\n";
 char* print_r2="R2\n";
 uint8_t w1=1;
 uint8_t w2=1;
+uint8_t r1=1;
+uint8_t r2=1;
 uint8_t new_line=1;
 
 
@@ -30,6 +32,8 @@ ISR(USART0_RX_vect){
   //setta i valori per le variabili di controllo per la stampa
   w1=1;
   w2=1;
+  r1=1;
+  r2=1;
   new_line=1;
   //mette il carattere nel buffer di lettura
   char c = usart_getchar();
@@ -55,6 +59,8 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
         }
         w1=0;
         w2=1;
+        r1=1;
+        r2=1;
         new_line=0;
       }
     }
@@ -88,6 +94,8 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
         w2=0;
         w1=1;
         new_line=0;
+        r1=1;
+        r2=1;
       }
     }
 
@@ -107,7 +115,7 @@ void read1_fn(uint32_t arg __attribute__((unused))){
   while(1){
     cli();
     ATOMIC_BLOCK(ATOMIC_FORCEON){
-      if(read_buffer.size >0){
+      if(r1 && read_buffer.size >0){
         //mette il carattere di new line se non è stato stampato
         if(!new_line){
           usart_putchar('\n');
@@ -119,6 +127,8 @@ void read1_fn(uint32_t arg __attribute__((unused))){
         new_line=1;
         w1=1;
         w2=1;
+        r1=0;
+        r2=1;
       }
     }
     
@@ -141,7 +151,7 @@ void read2_fn(uint32_t arg __attribute__((unused))){
     cli();
     ATOMIC_BLOCK(ATOMIC_FORCEON){
       
-      if(read_buffer.size >0){
+      if(r2 && read_buffer.size >0){
         //mette il carattere di new line se non è stato stampato
         if(!new_line){
           usart_putchar('\n');
@@ -152,6 +162,8 @@ void read2_fn(uint32_t arg __attribute__((unused))){
         new_line=1;
         w1=1;
         w2=1;
+        r1=1;
+        r2=0;
       }
     }
     //leggo dal buffer e scrivo sul buffer di scrittura
