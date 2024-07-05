@@ -12,10 +12,8 @@ fi
 
 cd "serial linux" || exit
 
-
+# Apri il secondo terminale e esegui il secondo script
+gnome-terminal  --title="scrittura" -- bash -c "./scrittura.sh; exec bash"
 
 # Apri il primo terminale e esegui il primo script
 gnome-terminal  --title="Lettura" -- bash -c "./lettura.sh; exec bash"
-
-# Apri il secondo terminale e esegui il secondo script
-gnome-terminal  --title="scrittura" -- bash -c "./scrittura.sh; exec bash"

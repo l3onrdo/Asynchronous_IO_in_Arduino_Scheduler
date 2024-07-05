@@ -19,11 +19,11 @@ char* print_w1="W1:\n";
 char* print_w2="W2:\n";
 char* print_r1="R1\n";
 char* print_r2="R2\n";
-uint8_t w1=1;
-uint8_t w2=1;
-uint8_t r1=1;
-uint8_t r2=1;
-uint8_t new_line=1;
+uint8_t w1;
+uint8_t w2;
+uint8_t r1;
+uint8_t r2;
+uint8_t new_line;
 
 
 
