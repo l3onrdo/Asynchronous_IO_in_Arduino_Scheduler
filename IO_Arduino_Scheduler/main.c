@@ -27,13 +27,14 @@ uint8_t new_line=1;
 
 // interrupt che gestisce la ricezione di un carattere
 ISR(USART0_RX_vect){
+  //setta i valori per le variabili di controllo per la stampa
   w1=1;
   w2=1;
   new_line=1;
+  //mette il carattere nel buffer di lettura
   char c = usart_getchar();
-
   buffer_put(&read_buffer, c);
-  
+  //mette il processo di scrittura in ready
   read_wakeup();
 }
 
@@ -46,10 +47,8 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
     ATOMIC_BLOCK(ATOMIC_FORCEON){
       if(w1 && write_buffer.size >0){
         if(!new_line){
-          //printf("sono dentro w1");
           usart_putchar('\n');
-
-        }        
+        }
         //stampa la frase print_w1
         for(int i=0; i<strlen(print_w1); i++){
           usart_putchar(print_w1[i]);
@@ -59,14 +58,15 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
         new_line=0;
       }
     }
+    //stampa il carattere dal buffer di scrittura
     if(write_buffer.size > 0){
       usart_putchar(buffer_get(&write_buffer));
-      //printf("%c", get_data(&write_buffer));
     }
     
     read_wakeup();
     sei();
     _delay_ms(10);
+
   }
 }
 
@@ -79,7 +79,6 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
     ATOMIC_BLOCK(ATOMIC_FORCEON){
       if(w2 && write_buffer.size >0){
         if(!new_line){
-          //printf("sono dentro w2");
           usart_putchar('\n');
         }
         //stampa la frase print_w2
@@ -93,11 +92,12 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
     }
 
     if(write_buffer.size > 0){
-      //usart_putchar(buffer_get(&write_buffer));
-      printf("%c", get_data(&write_buffer));
+      usart_putchar(buffer_get(&write_buffer));
     } 
+    read_wakeup();
     sei();
     _delay_ms(10);
+
   }
 }
 
@@ -110,7 +110,6 @@ void read1_fn(uint32_t arg __attribute__((unused))){
       if(read_buffer.size >0){
         //mette il carattere di new line se non è stato stampato
         if(!new_line){
-          //printf("sono dentro r1");
           usart_putchar('\n');
         }
         
@@ -127,8 +126,9 @@ void read1_fn(uint32_t arg __attribute__((unused))){
     if(read_buffer.size > 0){
       char read = buffer_get(&read_buffer);
       put_data(&write_buffer, read);
-      write_wakeup();
     }
+
+    write_wakeup();
     sei();
     _delay_ms(10);
   }
@@ -144,7 +144,6 @@ void read2_fn(uint32_t arg __attribute__((unused))){
       if(read_buffer.size >0){
         //mette il carattere di new line se non è stato stampato
         if(!new_line){
-          //printf("sono dentro r2");
           usart_putchar('\n');
         }
         for(int i=0; i<strlen(print_r2); i++){
@@ -159,9 +158,9 @@ void read2_fn(uint32_t arg __attribute__((unused))){
     if(read_buffer.size > 0){
       char read = buffer_get(&read_buffer);
       put_data(&write_buffer, read);
-      write_wakeup();
     }
     
+    write_wakeup();
     sei();
     _delay_ms(10);
   }
@@ -198,9 +197,9 @@ int main(void){
   // metto i processi nella coda dei processi pronti
   TCBList_enqueue(&running_queue, &read1_tcp);
   TCBList_enqueue(&running_queue, &read2_tcp);
-  TCBList_enqueue(&running_queue, &write2_tcb);
   TCBList_enqueue(&running_queue, &write1_tcb);
-  
-  //printf("starting\n");
+  TCBList_enqueue(&running_queue, &write2_tcb);
+
+
   startSchedule();
 }
