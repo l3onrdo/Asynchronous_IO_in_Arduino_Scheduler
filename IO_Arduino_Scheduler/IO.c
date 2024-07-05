@@ -15,7 +15,7 @@
 char get_data(buffer_t *buffer) {
     if(buffer->size == 0) {
         //deve mettere il processo di lettura in attesa
-        read_wait();
+        write_wait();
     }
     return buffer_get(buffer);
 }
@@ -24,7 +24,7 @@ char get_data(buffer_t *buffer) {
 void put_data(buffer_t *buffer, char data) {
     if(buffer->size >= BUFFER_SIZE) {
         //deve mettere il processo di scrittura in attesa
-        write_wait();
+        read_wait();
     }
     buffer_put(buffer, data);
 }

@@ -72,7 +72,7 @@ void read_wait(void){
   TCB* old_tcb=current_tcb;
   // mettiamo il processo corrente nella coda dei processi in attaesa di lettura
   TCBList_enqueue(&read_queue, current_tcb);
-  printf("metto in attesa il processo di lettura\n");
+  //printf("metto in attesa il processo di lettura\n");
   // estraiamo il prossimo processo
   current_tcb=TCBList_dequeue(&running_queue);
   // passiamo al suo contesto (inutile se è l'unico processo)
@@ -87,7 +87,7 @@ void write_wait(void){
   TCB* old_tcb=current_tcb;
   // mettiamo il processo corrente nella coda dei processi in attesa di scrittura
   TCBList_enqueue(&write_queue, current_tcb);
-  printf("metto in attesa il processo di scrittura\n");
+  //printf("metto in attesa il processo di scrittura\n");
   // estraiamo il prossimo processo
   current_tcb=TCBList_dequeue(&running_queue);
   // passiamo al suo contesto (inutile se è l'unico processo)
@@ -104,7 +104,7 @@ void read_wakeup(void){
   // mettiamo il processo corrente nella coda dei processi in esecuzione
   TCBList_enqueue(&running_queue, current_tcb);
   //chiamo lo scheduler
-  printf("risveglio il processo di lettura\n");
+  //printf("risveglio il processo di lettura\n");
   schedule();
 }
 
@@ -117,6 +117,6 @@ void write_wakeup(void){
   // mettiamo il processo corrente nella coda dei processi in esecuzione
   TCBList_enqueue(&running_queue, current_tcb);
   //chiamo lo scheduler
-  printf("risveglio il processo di scrittura\n");
+  //printf("risveglio il processo di scrittura\n");
   schedule();
 }

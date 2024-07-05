@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <util/atomic.h>
 #include "tcb.h"
 #include "tcb_list.h"
 #include "uart.h"
@@ -24,8 +25,9 @@ ISR(USART0_RX_vect){
     // if(c == '\r' || c == '\n'){
     //   c = '\0';
     // }
-    put_data(&read_buffer, c);
-    read_wakeup();
+    buffer_put(&read_buffer, c);
+    //put_data(&read_buffer, c);
+    write_wakeup();
     sei();
 }
 
@@ -35,9 +37,11 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
     if(write_buffer.size > 0){
-      //usart_putchar(get_data(&read_buffer)); 
+
+      //usart_putchar(get_data(&read_buffer));
       printf("so w1 e scrivo %c\n", get_data(&write_buffer));
       read_wakeup();
+      
     }
     
     sei();
@@ -71,7 +75,7 @@ void read1_fn(uint32_t arg __attribute__((unused))){
       char read = get_data(&read_buffer);
       put_data(&write_buffer, read);
     
-      printf("so r1 e leggo %c\n", read);
+      //printf("so r1 e leggo %c\n", read);
       write_wakeup();
     }
     sei();
@@ -89,7 +93,7 @@ void read2_fn(uint32_t arg __attribute__((unused))){
       char read = get_data(&read_buffer);
       put_data(&write_buffer, read);
     
-      printf("so r2 e leggo %c\n", read);
+      //printf("so r2 e leggo %c\n", read);
       write_wakeup();
     }
     
@@ -129,7 +133,7 @@ int main(void){
   // metto i processi nella coda dei processi pronti
   TCBList_enqueue(&running_queue, &read1_tcp);
   TCBList_enqueue(&running_queue, &read2_tcp);
-  TCBList_enqueue(&running_queue, &write2_tcb);
+  //TCBList_enqueue(&running_queue, &write2_tcb);
   TCBList_enqueue(&running_queue, &write1_tcb);
   
   printf("starting\n");
