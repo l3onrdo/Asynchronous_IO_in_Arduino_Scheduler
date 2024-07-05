@@ -19,14 +19,11 @@
 
 // interrupt che gestisce la ricezione di un carattere
 ISR(USART0_RX_vect){
-    cli();
     char c = usart_getchar();
-    
-    
+  
     buffer_put(&read_buffer, c);
     
     read_wakeup();
-    sei();
 }
 
 TCB write1_tcb;
