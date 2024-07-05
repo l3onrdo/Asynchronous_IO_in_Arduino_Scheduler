@@ -17,15 +17,19 @@
 
 char* print_w1="W1:\n";
 char* print_w2="W2:\n";
-
+char* print_r1="R1\n";
+char* print_r2="R2\n";
 uint8_t w1=1;
 uint8_t w2=1;
+uint8_t new_line=1;
+
 
 
 // interrupt che gestisce la ricezione di un carattere
 ISR(USART0_RX_vect){
   w1=1;
   w2=1;
+  new_line=1;
   char c = usart_getchar();
 
   buffer_put(&read_buffer, c);
@@ -41,8 +45,10 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
     //stamapa print_w1 lo faccio atomico per evitare probleme di concorrenza
     ATOMIC_BLOCK(ATOMIC_FORCEON){
       if(w1 && write_buffer.size >0){
-        if(!w2){
+        if(!new_line){
+          //printf("sono dentro w1");
           usart_putchar('\n');
+
         }        
         //stampa la frase print_w1
         for(int i=0; i<strlen(print_w1); i++){
@@ -50,6 +56,7 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
         }
         w1=0;
         w2=1;
+        new_line=0;
       }
     }
     if(write_buffer.size > 0){
@@ -71,7 +78,8 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
     //stamapa print_w2 lo faccio atomico per evitare probleme di concorrenza
     ATOMIC_BLOCK(ATOMIC_FORCEON){
       if(w2 && write_buffer.size >0){
-        if(!w1){
+        if(!new_line){
+          //printf("sono dentro w2");
           usart_putchar('\n');
         }
         //stampa la frase print_w2
@@ -80,6 +88,7 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
         }
         w2=0;
         w1=1;
+        new_line=0;
       }
     }
 
@@ -97,6 +106,22 @@ uint8_t read1_stack[THREAD_STACK_SIZE];
 void read1_fn(uint32_t arg __attribute__((unused))){
   while(1){
     cli();
+    ATOMIC_BLOCK(ATOMIC_FORCEON){
+      if(read_buffer.size >0){
+        //mette il carattere di new line se non è stato stampato
+        if(!new_line){
+          //printf("sono dentro r1");
+          usart_putchar('\n');
+        }
+        
+        for(int i=0; i<strlen(print_r1); i++){
+          usart_putchar(print_r1[i]);
+        }
+        new_line=1;
+        w1=1;
+        w2=1;
+      }
+    }
     
     //leggo dal buffer e scrivo sul buffer di scrittura
     if(read_buffer.size > 0){
@@ -114,6 +139,22 @@ uint8_t read2_stack[THREAD_STACK_SIZE];
 void read2_fn(uint32_t arg __attribute__((unused))){
   while(1){
     cli();
+    ATOMIC_BLOCK(ATOMIC_FORCEON){
+      
+      if(read_buffer.size >0){
+        //mette il carattere di new line se non è stato stampato
+        if(!new_line){
+          //printf("sono dentro r2");
+          usart_putchar('\n');
+        }
+        for(int i=0; i<strlen(print_r2); i++){
+          usart_putchar(print_r2[i]);
+        }
+        new_line=1;
+        w1=1;
+        w2=1;
+      }
+    }
     //leggo dal buffer e scrivo sul buffer di scrittura
     if(read_buffer.size > 0){
       char read = buffer_get(&read_buffer);
