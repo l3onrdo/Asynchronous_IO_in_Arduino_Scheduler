@@ -1,2 +1,2 @@
-char get_data(buffer_t *buffer);
-void put_data(buffer_t *buffer, char data);
+char getChar(buffer_t *buffer);
+void putChar(buffer_t *buffer, char data);

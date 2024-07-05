@@ -12,22 +12,22 @@
 
 
 //funzione per leggere dati dal buffer
-char get_data(buffer_t *buffer) {
+char getChar(buffer_t *buffer) {
     if(buffer->size == 0) {
         //deve mettere il processo di lettura in attesa
         write_wait();
     }
-    return buffer_get(buffer);
+    return buffer_read(buffer);
 }
 
 //funzione per scrivere dati nel buffer
-void put_data(buffer_t *buffer, char data) {
+void putChar(buffer_t *buffer, char data) {
     if(buffer->size == BUFFER_SIZE) {
         //deve mettere il processo di scrittura in attesa
         read_wait();
         
     }
-    buffer_put(buffer, data);
+    buffer_write(buffer, data);
 }
 
 

@@ -33,7 +33,7 @@ ISR(USART0_RX_vect){
   new_line=1;
   //mette il carattere nel buffer di lettura
   char c = usart_getchar();
-  buffer_put(&read_buffer, c);
+  buffer_write(&read_buffer, c);
   //mette il processo di scrittura in ready
   read_wakeup();
 }
@@ -60,7 +60,7 @@ void write1_fn(uint32_t thread_arg __attribute__((unused))){
     }
     //stampa il carattere dal buffer di scrittura
     if(write_buffer.size > 0){
-      usart_putchar(get_data(&write_buffer));
+      usart_putchar(getChar(&write_buffer));
     }
     
     read_wakeup();
@@ -92,7 +92,7 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
     }
 
     if(write_buffer.size > 0){
-      usart_putchar(get_data(&write_buffer));
+      usart_putchar(getChar(&write_buffer));
     } 
     read_wakeup();
     sei();
@@ -124,8 +124,8 @@ void read1_fn(uint32_t arg __attribute__((unused))){
     
     //leggo dal buffer e scrivo sul buffer di scrittura
     if(read_buffer.size > 0){
-      char read = get_data(&read_buffer);
-      put_data(&write_buffer, read);
+      char read = getChar(&read_buffer);
+      putChar(&write_buffer, read);
     }
 
     write_wakeup();
@@ -156,8 +156,8 @@ void read2_fn(uint32_t arg __attribute__((unused))){
     }
     //leggo dal buffer e scrivo sul buffer di scrittura
     if(read_buffer.size > 0){
-      char read = get_data(&read_buffer);
-      put_data(&write_buffer, read);
+      char read = getChar(&read_buffer);
+      putChar(&write_buffer, read);
     }
     
     write_wakeup();

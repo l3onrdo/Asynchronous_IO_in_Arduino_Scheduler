@@ -9,8 +9,8 @@ typedef struct {
 } buffer_t;
 
 void buffer_init(buffer_t *buffer);
-void buffer_put(buffer_t *buffer, char data);
-char buffer_get(buffer_t *buffer);
+void buffer_write(buffer_t *buffer, char data);
+char buffer_read(buffer_t *buffer);
 
 
 buffer_t read_buffer;

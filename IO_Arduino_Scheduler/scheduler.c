@@ -25,13 +25,13 @@ TCBList running_queue={
 };
 
 //aggiungo la coda dei processi di lettura e scrittra in attesa di essere eseguiti
-TCBList read_queue={
+TCBList wait_read_queue={
   .first=NULL,
   .last=NULL,
   .size=0
 };
 
-TCBList write_queue={
+TCBList wait_write_queue={
   .first=NULL,
   .last=NULL,
   .size=0
@@ -73,7 +73,7 @@ void read_wait(void){
   
   TCB* old_tcb=current_tcb;
   // mettiamo il processo corrente nella coda dei processi in attaesa di lettura
-  TCBList_enqueue(&read_queue, current_tcb);
+  TCBList_enqueue(&wait_read_queue, current_tcb);
   //printf("metto in attesa il processo di lettura\n");
   // estraiamo il prossimo processo
   current_tcb=TCBList_dequeue(&running_queue);
@@ -88,7 +88,7 @@ void read_wait(void){
 void write_wait(void){
   TCB* old_tcb=current_tcb;
   // mettiamo il processo corrente nella coda dei processi in attesa di scrittura
-  TCBList_enqueue(&write_queue, current_tcb);
+  TCBList_enqueue(&wait_write_queue, current_tcb);
   //printf("metto in attesa il processo di scrittura\n");
   // estraiamo il prossimo processo
   current_tcb=TCBList_dequeue(&running_queue);
@@ -101,14 +101,14 @@ void write_wait(void){
  * mette il processo di lettura in esecuzione e mette in attesa il processo corrente
  */
 void read_wakeup(void){
-  if(read_queue.size>0 && write_queue.size<BUFFER_SIZE){
+  if(wait_read_queue.size>0 && read_buffer.size>0){
     //eseguiamo il processo di lettura
     TCB* old_tcb=current_tcb;
     // mettiamo il processo corrente nella coda dei processi in esecuzione
     TCBList_enqueue(&running_queue, current_tcb);
 
     // estraiamo il prossimo processo
-    current_tcb=TCBList_dequeue(&read_queue);
+    current_tcb=TCBList_dequeue(&wait_read_queue);
     // passiamo al suo contesto (inutile se è l'unico processo)
     archContextSwitch(old_tcb, current_tcb);
   }
@@ -119,14 +119,14 @@ void read_wakeup(void){
  * mette il processo di scrittura in esecuzione e mette in attesa il processo corrente
  */
 void write_wakeup(void){
-  if(write_queue.size>0 && read_queue.size>0){
+  if(wait_write_queue.size>0 && write_buffer.size<BUFFER_SIZE){
     //eseguiamo il processo di scrittura
     TCB* old_tcb=current_tcb;
     // mettiamo il processo corrente nella coda dei processi in esecuzione
     TCBList_enqueue(&running_queue, current_tcb);
 
     // estraiamo il prossimo processo
-    current_tcb=TCBList_dequeue(&write_queue);
+    current_tcb=TCBList_dequeue(&wait_write_queue);
     // passiamo al suo contesto (inutile se è l'unico processo)
     archContextSwitch(old_tcb, current_tcb);
   }

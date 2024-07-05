@@ -7,8 +7,10 @@ void buffer_init(buffer_t *buffer) {
   buffer->size = 0;
 }
 
-//funzione per inserire un dato nel buffer
-void buffer_put(buffer_t *buffer, char data) {
+/**
+ * funzione per inserire un dato nel buffer
+ */
+void buffer_write(buffer_t *buffer, char data) {
   buffer->data[buffer->head] = data;
   buffer->head = (buffer->head + 1) % BUFFER_SIZE;
   buffer->size++;
@@ -16,7 +18,7 @@ void buffer_put(buffer_t *buffer, char data) {
 
 
 //funzione per estrarre un dato dal buffer
-char buffer_get(buffer_t *buffer) {
+char buffer_read(buffer_t *buffer) {
   char data = buffer->data[buffer->tail];
   buffer->tail = (buffer->tail + 1) % BUFFER_SIZE;
   buffer->size--;
