@@ -21,13 +21,11 @@
 ISR(USART0_RX_vect){
     cli();
     char c = usart_getchar();
-    //faccio in modo che il carattere di fine riga sia '\0' avvolte da problemi se è diverso
-    // if(c == '\r' || c == '\n'){
-    //   c = '\0';
-    // }
+    
+    
     buffer_put(&read_buffer, c);
-    //put_data(&read_buffer, c);
-    write_wakeup();
+    
+    read_wakeup();
     sei();
 }
 
@@ -36,14 +34,13 @@ uint8_t write1_stack[IDLE_STACK_SIZE];
 void write1_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
+    
     if(write_buffer.size > 0){
-
-      //usart_putchar(get_data(&read_buffer));
-      printf("so w1 e scrivo %c\n", get_data(&write_buffer));
-      read_wakeup();
-      
+      usart_putchar(buffer_get(&write_buffer));
+      //printf("%c", get_data(&write_buffer));
     }
     
+    read_wakeup();
     sei();
     _delay_ms(10);
   }
@@ -55,11 +52,9 @@ void write2_fn(uint32_t thread_arg __attribute__((unused))){
   while(1) {
     cli();
     if(write_buffer.size > 0){
-      //usart_putchar(get_data(&read_buffer));
-      printf("so w2 e scrivo %c\n", get_data(&write_buffer));
-      read_wakeup();
-    }
-    
+      //usart_putchar(buffer_get(&write_buffer));
+      printf("%c", get_data(&write_buffer));
+    } 
     sei();
     _delay_ms(10);
   }
@@ -72,10 +67,8 @@ void read1_fn(uint32_t arg __attribute__((unused))){
     cli();
     //leggo dal buffer e scrivo sul buffer di scrittura
     if(read_buffer.size > 0){
-      char read = get_data(&read_buffer);
+      char read = buffer_get(&read_buffer);
       put_data(&write_buffer, read);
-    
-      //printf("so r1 e leggo %c\n", read);
       write_wakeup();
     }
     sei();
@@ -90,10 +83,8 @@ void read2_fn(uint32_t arg __attribute__((unused))){
     cli();
     //leggo dal buffer e scrivo sul buffer di scrittura
     if(read_buffer.size > 0){
-      char read = get_data(&read_buffer);
+      char read = buffer_get(&read_buffer);
       put_data(&write_buffer, read);
-    
-      //printf("so r2 e leggo %c\n", read);
       write_wakeup();
     }
     
@@ -133,7 +124,7 @@ int main(void){
   // metto i processi nella coda dei processi pronti
   TCBList_enqueue(&running_queue, &read1_tcp);
   TCBList_enqueue(&running_queue, &read2_tcp);
-  //TCBList_enqueue(&running_queue, &write2_tcb);
+  TCBList_enqueue(&running_queue, &write2_tcb);
   TCBList_enqueue(&running_queue, &write1_tcb);
   
   printf("starting\n");
