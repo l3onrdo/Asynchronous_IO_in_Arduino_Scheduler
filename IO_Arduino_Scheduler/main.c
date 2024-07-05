@@ -124,6 +124,6 @@ int main(void){
   TCBList_enqueue(&running_queue, &write2_tcb);
   TCBList_enqueue(&running_queue, &write1_tcb);
   
-  printf("starting\n");
+  //printf("starting\n");
   startSchedule();
 }

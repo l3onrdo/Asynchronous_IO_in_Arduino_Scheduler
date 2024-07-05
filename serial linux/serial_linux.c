@@ -99,8 +99,10 @@ int main(int argc, const char** argv) {
   int fd=serial_open(serial_device);
   serial_set_interface_attribs(fd, baudrate, 0);
   serial_set_blocking(fd, 1);
-
-  printf("in place\n");
+  if(!read_or_write)
+    printf("reading\n");
+  else
+    printf("writing\n");
   while(1) {
     char buf[1024];
     memset(buf, 0, 1024);
@@ -110,8 +112,8 @@ int main(int argc, const char** argv) {
     } else {
       fgets(buf, 1024, stdin);
       int l=strlen(buf);
-      buf[l]='\n';
-      ++l;
+      // buf[l]='\n';
+      // ++l;
       write(fd, buf, l);
     }
   }
