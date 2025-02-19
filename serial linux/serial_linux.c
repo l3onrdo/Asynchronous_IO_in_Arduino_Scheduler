@@ -100,9 +100,9 @@ int main(int argc, const char** argv) {
   serial_set_interface_attribs(fd, baudrate, 0);
   serial_set_blocking(fd, 1);
   if(read_or_write)
-    printf("Qui sbratto cose\n");
+    printf("Output e Processi in esecuzione\n");
   else
-    printf("Qui se scrive\n");
+    printf("Input di lettura\n");
   while(1) {
     char buf[1024];
     memset(buf, 0, 1024);

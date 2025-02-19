@@ -20,6 +20,7 @@ char getChar(buffer_t *buffer) {
     return buffer_read(buffer);
 }
 
+
 //funzione per scrivere dati nel buffer
 void putChar(buffer_t *buffer, char data) {
     if(buffer->size == BUFFER_SIZE) {

@@ -13,7 +13,7 @@ fi
 cd "serial linux" || exit
 
 # Apri il secondo terminale e esegui il secondo script
-gnome-terminal  --title="scrittura" -- bash -c "./scrittura.sh; exec bash"
+gnome-terminal  --title="Terminale di Output" -- bash -c "stty -echo -icanon; ./scrittura.sh; stty echo icanon; exec bash"
 
 # Apri il primo terminale e esegui il primo script
-gnome-terminal  --title="Lettura" -- bash -c "./lettura.sh; exec bash"
+gnome-terminal  --title="Terminale di Input" -- bash -c "./lettura.sh; exec bash"
